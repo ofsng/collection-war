@@ -116,7 +116,10 @@ indistinguishable from an oversight.
 
 ## Current
 
-**Active:** [CW-0001 — Development platform bootstrap](active/CW-0001-development-platform-bootstrap.md)
+**Active:**
+
+- [CW-0001 — Development platform bootstrap](active/CW-0001-development-platform-bootstrap.md)
+- [CW-0002 — Canonical architecture and domain specification package](active/CW-0002-canonical-architecture-and-domain-specifications.md)
 
 **Next:** see [BACKLOG.md](BACKLOG.md).
 

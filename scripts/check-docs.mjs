@@ -97,9 +97,13 @@ for (const file of sourceFiles) {
 }
 
 // ─────────────────────────────────────────────────── 4. forbidden artefacts
-const forbidden = ['.cursorrules', '.cursorignore', 'docs/.obsidian'].filter((entry) =>
-  existsSync(join(ROOT, entry)),
-);
+const forbidden = ['.cursorrules', '.cursorignore'].filter((entry) => existsSync(join(ROOT, entry)));
+try {
+  const trackedObsidian = execSync(`git -C ${ROOT} ls-files docs/.obsidian`, { encoding: 'utf8' }).trim();
+  if (trackedObsidian) forbidden.push('docs/.obsidian (tracked in git)');
+} catch {
+  // Ignore git command failure if not a repo
+}
 
 // ────────────────────────────────────────────── 5. .env must be git-ignored
 let envIgnored = false;

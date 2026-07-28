@@ -1,0 +1,16 @@
+# Generated files that a tool rewrites on every build.
+#
+# `next-env.d.ts` is emitted by `next build` and carries a "should not be edited" notice.
+# Prettier rewrites its double quotes to single quotes; the next build rewrites them back.
+# The result is a `format:check` that fails after every build, for a file nobody edits —
+# which trains people to ignore a failing quality gate.
+apps/web/next-env.d.ts
+apps/admin/next-env.d.ts
+
+# Build output and dependencies (Prettier also reads .gitignore, but being explicit here
+# keeps the two concerns separate).
+**/dist/**
+**/.next/**
+**/.expo/**
+**/coverage/**
+pnpm-lock.yaml

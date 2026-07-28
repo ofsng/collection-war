@@ -18,6 +18,7 @@
 
 export * from './clock';
 export * from './random';
+export * from './game';
 export * from './errors';
 export * from './events';
 export * from './outbox';

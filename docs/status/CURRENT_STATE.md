@@ -1,137 +1,116 @@
 # Current State
 
-> **Date: 2026-07-28.** This document is perishable — treat anything here as stale unless the
-> date is recent.
-> Audience: anyone about to plan work, human or AI. **Read this before assuming anything
-> exists.**
+> **Date: 2026-07-28.** Perishable — treat anything here as stale unless the date is recent.
+> Audience: anyone about to plan work. **Read this before assuming anything exists.**
 
 ---
 
 ## In one paragraph
 
-Collection War has a **verified development platform** and **no gameplay**. The monorepo
-installs, 237 tests pass, `pnpm verify` is green, the API serves health and readiness over
-real HTTP, and the architectural boundary rules have been proven to reject violations. Local
-infrastructure is fully configured but **has never been started**, because Docker was not
-available on the bootstrap machine — so no migration has run, no integration test has
-executed, and the mobile app has never run on a device.
+**Collection War is playable.** A player can register, choose a language, choose one of three
+starters, build a team, fight a server-resolved battle, receive experience and materials, level
+up, and see identical state from a second client. The battle engine is deterministic and
+versioned; rewards are idempotent; ownership is re-verified inside every write. All of that is
+proven by **54 integration tests against real PostgreSQL**, which now run without Docker via
+PGlite. What is **not** built: everything beyond the first loop — evolution, marketplace, the
+economy ledger, arena, exploration, crafting, and the mobile game screens.
 
 ---
 
 ## Verified by execution
 
-Each of these was confirmed by running a command and observing the result.
-
-| Item                                 | Evidence                                                                                                 |
-| ------------------------------------ | -------------------------------------------------------------------------------------------------------- |
-| Monorepo installs                    | `pnpm install` → 19 projects, 54s, exit 0                                                                |
-| **All quality gates pass**           | `pnpm verify` → format ✅ lint ✅ typecheck ✅ test ✅ build ✅                                          |
-| 237 tests pass                       | 167 package · 28 API · 13 web · 4 admin · 13 mobile · 12 worker                                          |
-| **API runs and serves HTTP**         | `GET /health` → 200 · `/api/v1/system/info` → 200 · `/ready` → **503 with dependencies down, correctly** |
-| Security headers applied             | CSP, `X-Frame-Options`, `nosniff` observed on a live response                                            |
-| Correlation id echoed                | `x-correlation-id` returned on the response                                                              |
-| Error envelope                       | 404 returned the standard `{ error: { category, code, message } }` shape                                 |
-| OpenAPI served                       | `/docs` → 200                                                                                            |
-| **Boundary rules reject violations** | 4 deliberate violations introduced; all 4 rejected                                                       |
-| Web and admin build                  | `next build` → success, both                                                                             |
-| Mobile typechecks and tests          | `tsc --noEmit` ✅ · 13 logic tests ✅                                                                    |
-
----
+| Item                          | Evidence                                                                |
+| ----------------------------- | ----------------------------------------------------------------------- |
+| **`pnpm verify`**             | ✅ format · lint · typecheck · test · build                             |
+| **Unit tests**                | ✅ **292** across 19 projects                                           |
+| **Integration tests**         | ✅ **54** against real PostgreSQL (19 schema + 35 slice)                |
+| **Battle determinism**        | ✅ identical result across 20 resolutions; 200 seeds all terminate      |
+| **The full loop**             | ✅ register → starter → team → battle → rewards → level-up, in one test |
+| **Cross-client state**        | ✅ a second login sees the same creature, level, materials and locale   |
+| **Reward replay safety**      | ✅ retrying a battle returns the original and grants nothing extra      |
+| **Double-starter prevention** | ✅ rejected both by idempotency key and by a second distinct request    |
+| **Cross-player access**       | ✅ another player's creature and battle both return 404                 |
+| **Refresh-token reuse**       | ✅ revokes the entire token family                                      |
+| **No user enumeration**       | ✅ unknown account and wrong password return identical errors           |
+| **Database constraints**      | ✅ all nine correctness constraints verified against PostgreSQL         |
+| **Locale persistence**        | ✅ server-side; survives re-login                                       |
+| **Localization completeness** | ✅ failing test; both locales complete                                  |
+| **Web app**                   | ✅ typechecks, builds, playable loop implemented                        |
 
 ## Exists but NOT verified
 
-| Item                              | Why not                                    | Consequence                                                                  |
-| --------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------- |
-| **Local infrastructure**          | Docker not installed                       | Health checks, MinIO init and the PostgreSQL locale setting are all untested |
-| **Database migrations**           | No database to run against                 | The generate → review → apply cycle has never been exercised                 |
-| **Integration tests** (6 written) | Need PostgreSQL                            | `SERIALIZABLE` behaviour and the transaction rollback are unproven           |
-| **CI workflows**                  | No Git remote                              | Never executed                                                               |
-| **Mobile on a device**            | No device, no emulator, no interactive TTY | It has never rendered a single frame                                         |
-| Redis connectivity                | No Redis running                           | Only unit-tested with injected fakes                                         |
-
----
+| Item                                          | Why                         | Consequence                                                                               |
+| --------------------------------------------- | --------------------------- | ----------------------------------------------------------------------------------------- |
+| **Concurrency**                               | PGlite is single-connection | Two simultaneous starter grants, real `40001` retries and pool behaviour are **untested** |
+| **The API over HTTP against a real database** | No Docker                   | The services are proven directly; only health endpoints were ever exercised over HTTP     |
+| **Docker Compose**                            | Not installed               | Never started                                                                             |
+| **Mobile game screens**                       | Not built this phase        | Mobile still has only the health screen                                                   |
+| **CI**                                        | Never run                   | Workflows unexercised                                                                     |
+| **E2E (Playwright)**                          | Browsers not installed      | Harness configured, **no tests written**                                                  |
 
 ## Does not exist
 
-Stated plainly, because absence is easy to misread as "somewhere I have not looked".
+**Gameplay beyond the first loop:** evolution · stars · potential · personalities ·
+variations · bond · care · habitats · exploration · crafting · marketplace · arena · quests ·
+collection catalogue · social.
 
-**Gameplay** — no creature, battle, marketplace, economy, exploration, habitat, PvE, PvP,
-progression, quest or collection feature. No game content of any kind.
+**Systems:** the economy ledger (**no currency exists at all**) · rate limiting · the outbox
+relay worker (events are written, nothing consumes them) · admin UI · WebSockets · push.
 
-**Authentication** — no login anywhere. The admin guard denies every role, with a test
-asserting it.
-
-**Authorization enforcement** — the model is designed; nothing enforces it.
-
-**Rate limiting** · **the outbox relay worker** (or any job processor) · **any game database
-table** · **E2E tests** · **any deployment, environment, or hosted resource** · **any
-monitoring or alerting** · **any cost incurred**.
+**Content:** 3 of 60 species · 4 of 80 materials · 3 nodes · 1 of 4 biomes.
 
 ---
 
 ## What is built, precisely
 
+### Game systems
+
+| System               | State                                                                                       |
+| -------------------- | ------------------------------------------------------------------------------------------- |
+| **Identity**         | ✅ scrypt hashing, access + rotating refresh tokens with reuse detection, no enumeration    |
+| **Player profile**   | ✅ display name, server-side locale                                                         |
+| **Creature catalog** | ✅ versioned species, abilities, growth curves                                              |
+| **Owned creatures**  | ✅ starter grant (once ever), list, derived stats, append-only history                      |
+| **Teams**            | ✅ ownership-validated membership, slot and duplicate constraints                           |
+| **Battle engine**    | ✅ deterministic, 3v3-capable, versioned ruleset, elements, energy, crits, Burn, replay log |
+| **PvE**              | ✅ 3 nodes, server-enforced unlock gating, progress tracking                                |
+| **Rewards**          | ✅ seeded drops, idempotent grants, inventory history                                       |
+| **Inventory**        | ✅ transactional grant/consume, `CHECK (quantity >= 0)`                                     |
+| **Progression**      | ✅ quadratic curve, material gates, one level per call                                      |
+
+### Packages changed this phase
+
+| Package         | Added                                                        |
+| --------------- | ------------------------------------------------------------ |
+| `domain`        | Game rules: stats, elements, progression, rewards (53 tests) |
+| `battle-engine` | Real deterministic engine + versioned ruleset (23 tests)     |
+| `database`      | 12 game tables, migration, PGlite harness, content loader    |
+| `api-client`    | Full game API surface, schema-parsed                         |
+| `localization`  | Game and content keys, both locales complete                 |
+
 ### Applications
 
-| App       | State                                                                                                                                        |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `api`     | Health, readiness, system info. Config validation, structured logging, error filter, correlation interceptor, OpenAPI. **Verified running.** |
-| `workers` | Startup, Redis connection, queue declarations, graceful shutdown. **Zero processors.**                                                       |
-| `web`     | Health screen, locale switching, error boundary, loading state.                                                                              |
-| `admin`   | A route guard that denies everything, plus a health panel.                                                                                   |
-| `mobile`  | Health screen, locale switching, SecureStore adapter. **Never run.**                                                                         |
-
-### Packages
-
-All 13 build, typecheck and test. Notably:
-
-- **`economy`** — exact integer arithmetic, the ledger contract, and **six executable
-  invariants** (30 tests). No currencies, prices or reward tables.
-- **`battle-engine`** — contract, versioning and **seven written invariants** (6 tests). No
-  combat logic, and a test that fails if gameplay symbols appear.
-- **`domain`** — repository interfaces, events, outbox contract, unit of work, deterministic
-  clock and seeded random (15 tests).
-- **`database`** — pool, transactions with isolation control and serialization retry, health
-  probe. Two **platform** tables (`outbox`, `idempotency_keys`); no game schema.
-
-### Documentation
-
-Complete: constitution (6) · product (6) · architecture (16 + diagrams) · domains (21 + map +
-shared kernel) · **24 ADRs** · specification templates (5) · runbooks (9) · security (6) ·
-status (7).
-
-### AI adapters
-
-`CLAUDE.md` + `.claude/` (12 rules, 10 agents, 3 commands) · `agents.md` + `.agents/`
-(11 workflows). Both are thin pointers to `docs/` per
-[ADR-0018](../adr/ADR-0018-ai-tool-adapter-strategy.md).
-
----
-
-## Environment requirements
-
-| Tool                 | Required                    | On the bootstrap machine                                                    |
-| -------------------- | --------------------------- | --------------------------------------------------------------------------- |
-| Node                 | **22.16.0** (`.nvmrc`)      | Available via nvm; **default is 18 (EOL)** — `nvm use` required every shell |
-| pnpm                 | >= 10.11.0                  | 10.11.0 ✅                                                                  |
-| **Docker + Compose** | Required for infrastructure | **NOT INSTALLED**                                                           |
-| Playwright browsers  | For E2E                     | Not downloaded                                                              |
+| App       | State                                                                       |
+| --------- | --------------------------------------------------------------------------- |
+| `api`     | ✅ auth + full game API, 12 endpoints                                       |
+| `web`     | ✅ **playable**: register, locale, starter, team, battle, rewards, level-up |
+| `admin`   | Unchanged — the guard still denies everything                               |
+| `mobile`  | **Unchanged — health screen only. No game screens.**                        |
+| `workers` | Unchanged — no processors registered                                        |
 
 ---
 
 ## The next task
 
-**[CW-0002](../tasks/BACKLOG.md) — the canonical architecture and domain specification
-package.** No gameplay implementation begins before it is approved.
+1. **Mobile game screens** — the loop is only cross-platform on paper until they exist.
+2. **The outbox relay worker** — events are written and nothing reads them.
+3. **Concurrency verification on real PostgreSQL** — required before any economy work.
+4. **Rate limiting** — required before real users.
 
-Two things block confident progress and are worth doing first:
-
-1. **Run `pnpm infra:up`** on a machine with Docker, and confirm the stack works.
-2. **Confirm or replace the product vision** — it was inferred, not provided, and is marked
-   unapproved.
+Then Phase 3: potential, personalities, evolution and stars.
 
 ---
 
-Related: [Bootstrap report](BOOTSTRAP_REPORT.md) · [Risks](RISKS.md) ·
-[Open decisions](OPEN_DECISIONS.md) · [Deferred work](DEFERRED_WORK.md) ·
-[Technical debt](TECHNICAL_DEBT.md)
+Related: [Game implementation readiness](GAME_IMPLEMENTATION_READINESS.md) ·
+[CW-0100](../tasks/active/CW-0100-game-architecture-and-first-vertical-slice.md) ·
+[Risks](RISKS.md) · [Deferred work](DEFERRED_WORK.md)

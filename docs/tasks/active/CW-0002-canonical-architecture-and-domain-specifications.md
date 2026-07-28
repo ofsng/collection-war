@@ -1,6 +1,10 @@
 # CW-0002: Canonical architecture and domain specification package
 
-- **Status:** In progress
+- **Status:** **Superseded by [CW-0100](CW-0100-game-architecture-and-first-vertical-slice.md)**
+
+> Two packets covering the same specification work would diverge. CW-0100 absorbed this
+> scope and delivered the architecture package plus the first vertical slice.
+
 - **Owner / agent:** Opus 5 / Antigravity
 - **Created:** 2026-07-28
 - **Updated:** 2026-07-28

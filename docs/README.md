@@ -138,6 +138,13 @@ a system nobody built is worse than no diagram, because it will be believed.
 - [Data](architecture/DATA_ARCHITECTURE.md) · [API](architecture/API_ARCHITECTURE.md) · [Events](architecture/EVENT_ARCHITECTURE.md)
 - [Security](architecture/SECURITY_ARCHITECTURE.md) · [Localization](architecture/LOCALIZATION_ARCHITECTURE.md) · [Observability](architecture/OBSERVABILITY_ARCHITECTURE.md)
 - [Deployment](architecture/DEPLOYMENT_ARCHITECTURE.md) · [Scaling](architecture/SCALING_STRATEGY.md) · [Cost](architecture/COST_STRATEGY.md)
+
+**Game architecture**
+
+- [Game architecture](architecture/GAME_ARCHITECTURE.md) · [State ownership](architecture/GAME_STATE_OWNERSHIP.md) · [Client sync](architecture/GAME_CLIENT_SYNC.md)
+- [Randomness & replay](architecture/RANDOMNESS_AND_REPLAY.md) · [Transaction boundaries](architecture/TRANSACTION_BOUNDARIES.md) · [Content versioning](architecture/CONTENT_VERSIONING.md)
+- [Domain events](architecture/DOMAIN_EVENT_CATALOG.md) · [Background jobs](architecture/BACKGROUND_JOB_CATALOG.md)
+- [Authorization matrix](architecture/AUTHORIZATION_MATRIX.md) · [Anti-cheat](architecture/ANTI_CHEAT_ARCHITECTURE.md)
 - [Diagrams](architecture/diagrams/)
 
 ### Domains
@@ -165,5 +172,6 @@ a system nobody built is worse than no diagram, because it will be believed.
 
 ### Status
 
-- [Current state](status/CURRENT_STATE.md) · [Bootstrap environment](status/BOOTSTRAP_ENVIRONMENT.md) · [Bootstrap report](status/BOOTSTRAP_REPORT.md)
+- [Current state](status/CURRENT_STATE.md) · [Game implementation readiness](status/GAME_IMPLEMENTATION_READINESS.md)
+- [Bootstrap environment](status/BOOTSTRAP_ENVIRONMENT.md) · [Bootstrap report](status/BOOTSTRAP_REPORT.md)
 - [Risks](status/RISKS.md) · [Technical debt](status/TECHNICAL_DEBT.md) · [Open decisions](status/OPEN_DECISIONS.md) · [Deferred work](status/DEFERRED_WORK.md)

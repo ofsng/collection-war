@@ -16,7 +16,9 @@
  *      real fix is rotation, so catching it before the commit matters.
  *   4. FORBIDDEN ARTEFACTS. `.cursorrules`, committed Obsidian state.
  *   5. `.env` MUST BE GIT-IGNORED.
- *   6. GAMEPLAY LEAKAGE. Guards the "no gameplay before CW-0002" constraint.
+ *   6. HARDCODED CONTENT. Game content must live in the database as versioned rows, not in
+ *      handlers — see docs/architecture/CONTENT_VERSIONING.md. This replaces the earlier
+ *      "no gameplay" guard, which became meaningless once gameplay was approved and built.
  *
  * Deliberately NOT part of `pnpm verify`: this is an audit, run periodically and before a
  * release, not on every change. A gate that fails for a link in an unrelated document is a
@@ -116,13 +118,19 @@ try {
   envIgnored = !existsSync(join(ROOT, '.env'));
 }
 
-// ───────────────────────────────────────────── 6. gameplay leakage guard
-const GAMEPLAY_PATTERN =
-  /\b(damageFormula|attackPower|creatureRoster|dropTable|speciesData|SEED_CREATURES|MATERIALS_LIST)\b/;
+// ─────────────────────────────────────────── 6. hardcoded content guard
+//
+// Content belongs in the database, versioned. A species or drop table written into a
+// controller cannot be rebalanced without a deploy, cannot be versioned, and cannot be
+// replayed against — see docs/architecture/CONTENT_VERSIONING.md.
+//
+// The seed module is the sanctioned place for authored content, so it is exempt.
+const HARDCODED_CONTENT_PATTERN = /\b(baseAttack|baseHealth|dropChance|speciesStats)\s*[:=]/;
 
-const gameplay = sourceFiles
-  .filter((file) => file.includes('/packages/') || file.includes('/apps/'))
-  .filter((file) => GAMEPLAY_PATTERN.test(readFileSync(file, 'utf8')))
+const hardcodedContent = sourceFiles
+  .filter((file) => file.includes('/apps/api/src/') || file.includes('/packages/battle-engine/src/'))
+  .filter((file) => !file.includes('.test.'))
+  .filter((file) => HARDCODED_CONTENT_PATTERN.test(readFileSync(file, 'utf8')))
   .map(relative);
 
 // ─────────────────────────────────────────────────────────────────── report
@@ -145,7 +153,7 @@ const failures = [
   section('No Obsidian plugin syntax', obsidianIssues),
   section('No secrets detected', secrets),
   section('No forbidden artefacts', forbidden),
-  section('No gameplay implementation', gameplay),
+  section('No hardcoded game content outside the seed', hardcodedContent),
   section('.env is git-ignored', envIgnored ? [] : ['.env is NOT git-ignored']),
 ].filter(Boolean);
 

@@ -1,47 +1,50 @@
 'use client';
 
+import { useSyncExternalStore } from 'react';
 import { Stack, Text } from '@collection-war/design-system';
 import { LanguageSwitcher } from '../components/language-switcher';
 import { SystemStatus } from '../components/system-status';
+import { AuthPanel } from '../components/auth-panel';
+import { GamePanel } from '../components/game-panel';
 import { useLocale } from '../components/locale-provider';
+import { getSession, subscribeToSession } from '../lib/session';
 
 /**
- * The only page in the web shell.
+ * Collection War — the playable loop in the browser.
  *
- * It exists to answer one question — "can this browser reach the Collection War API?" —
- * and to demonstrate the shared localization and design packages working. No game screen
- * belongs here until its feature specification is approved.
+ * Sign in, choose a starter, build a team, fight, collect rewards, level up.
+ *
+ * The client decides nothing. Every outcome shown here was computed by the server; the battle
+ * log is animated, not produced.
  */
 export default function HomePage() {
   const { t } = useLocale();
 
+  // `useSyncExternalStore` rather than state + effect: the session lives outside React, and
+  // this is the sanctioned way to read external state without tearing during concurrent
+  // rendering. `getServerSnapshot` returns null so the server renders the signed-out view.
+  const session = useSyncExternalStore(
+    subscribeToSession,
+    () => getSession(),
+    () => null,
+  );
+
   return (
-    <main
-      id="main"
-      style={{
-        maxWidth: 720,
-        // `margin: auto` plus a max width is the whole responsive story for a single
-        // column. It works from a 320px phone to a wide desktop without a media query.
-        margin: '0 auto',
-        padding: '32px 16px',
-      }}
-    >
+    <main id="main" style={{ maxWidth: 760, margin: '0 auto', padding: '32px 16px' }}>
       <Stack gap="xl">
         <Stack direction="row" justify="between" align="center" wrap gap="md">
           <Stack gap="xs">
             <Text size="xl">{t('app.name')}</Text>
             <Text tone="secondary" size="sm">
-              {t('app.tagline')}
+              {session ? session.displayName : t('app.tagline')}
             </Text>
           </Stack>
           <LanguageSwitcher />
         </Stack>
 
-        <SystemStatus />
+        {session ? <GamePanel /> : <AuthPanel />}
 
-        <Text tone="secondary" size="xs">
-          {t('notice.no-gameplay')}
-        </Text>
+        <SystemStatus />
       </Stack>
     </main>
   );

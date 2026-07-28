@@ -1,0 +1,7 @@
+{
+  "//": "Subpath redirect for `@collection-war/database/testing`. A physical directory rather than only an `exports` map, because the packages compile to CommonJS and are resolved with Node10 resolution, which ignores `exports` (ADR-0014). Keeping the test harness out of the main entry point means it cannot be imported by production code by accident.",
+  "name": "@collection-war/database-testing",
+  "private": true,
+  "main": "../dist/testing.js",
+  "types": "../dist/testing.d.ts"
+}

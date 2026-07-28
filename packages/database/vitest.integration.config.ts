@@ -1,20 +1,23 @@
 import { defineConfig } from 'vitest/config';
 
 /**
- * Integration tests: these talk to a REAL PostgreSQL.
+ * Integration tests against REAL PostgreSQL, in-process via PGlite.
  *
- * Kept in a separate config, and behind the `require-database.mjs` gate, so that
- * `pnpm test` stays fast and hermetic while `pnpm test:integration` is honest about
- * needing infrastructure.
+ * These need no Docker and no `DATABASE_URL`, so they run everywhere — which is the whole
+ * point of ADR-0025. They apply the committed migrations and exercise the real constraints.
+ *
+ * WHAT THEY DO NOT COVER: PGlite is single-connection, so concurrent double-spend, real
+ * serialization failures and the retry path are NOT tested here. Those live in
+ * `vitest.postgres.config.ts` and require a real server.
  */
 export default defineConfig({
   test: {
     include: ['src/**/*.integration.test.ts'],
-    // A test that opens a real connection is slower than a unit test, and a timeout that
-    // is too tight produces flakes that get "fixed" by retrying.
+    // WASM start-up plus migrations. A tight timeout here produces flakes that get "fixed"
+    // by retrying rather than by understanding.
     testTimeout: 30_000,
     hookTimeout: 30_000,
-    // Database tests share one schema; running files in parallel makes them fight over it.
+    // One database per file; files must not share an instance.
     fileParallelism: false,
   },
 });

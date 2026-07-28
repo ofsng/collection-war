@@ -14,6 +14,7 @@
     "clean": "node ../../scripts/clean.mjs"
   },
   "dependencies": {
+    "@collection-war/battle-engine": "workspace:*",
     "@collection-war/configuration": "workspace:*",
     "@collection-war/database": "workspace:*",
     "@collection-war/domain": "workspace:*",
@@ -27,12 +28,14 @@
     "@nestjs/core": "11.1.28",
     "@nestjs/platform-fastify": "11.1.28",
     "@nestjs/swagger": "11.4.6",
+    "drizzle-orm": "0.45.2",
     "ioredis": "5.11.1",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2",
     "zod": "4.4.3"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.4",
     "@nestjs/cli": "11.0.24",
     "@nestjs/schematics": "11.1.0",
     "@nestjs/testing": "11.1.28",

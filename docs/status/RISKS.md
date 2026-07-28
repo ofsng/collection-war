@@ -7,9 +7,13 @@ Ordered by expected damage, not by likelihood.
 
 ---
 
-## R1 — Local infrastructure has never been started · **HIGH**
+## R1 — Local infrastructure has never been started · **MEDIUM** (was HIGH)
 
-**The largest gap in the bootstrap.**
+> **Substantially reduced on 2026-07-28.** Integration tests now run against real PostgreSQL
+> in-process via PGlite ([ADR-0025](../adr/ADR-0025-pglite-for-integration-tests.md)). 54 of
+> them pass, covering the schema, every correctness constraint, transactions and the complete
+> playable loop. What Docker was needed for is now mostly covered — **except concurrency**,
+> which is now tracked separately as [R13](#r13--concurrency-is-untested--high).
 
 Docker was not installed on the bootstrap machine, so `docker-compose.yml` has been written
 and reviewed but **never run**. Unverified as a result:
@@ -98,18 +102,40 @@ misconfiguration are all undiscovered. CI that has never run is a hypothesis.
 
 ---
 
-## R6 — Economy correctness is proven only in unit tests · **MEDIUM**
+## R6 — Economy correctness is proven only in unit tests · **LOW for now**
 
-Thirty tests cover the arithmetic and the six invariants, all with in-memory fakes.
+**No currency exists yet**, so the ledger is not exercised by anything and cannot currently be
+got wrong in production terms.
 
-**Impact.** The properties that actually prevent double spending — the unique index rejecting
-a concurrent insert, `SERIALIZABLE` preventing a double sale — are claims about **PostgreSQL**,
-and only PostgreSQL can settle them. They are currently untested.
+The _mechanisms_ it will rely on are now verified against real PostgreSQL: the unique index
+rejects a duplicate idempotency key, `CHECK (quantity >= 0)` rejects a negative stack, and a
+failed transaction rolls back completely.
 
-**Mitigation.** Integration tests exist for the transaction and isolation behaviour; they are
-gated on infrastructure (R1).
+**What remains untested is concurrency** — see [R13](#r13--concurrency-is-untested--high).
+That must be closed before any economy or marketplace work, not before the next slice.
 
-**Action.** Blocked on R1. Then extend integration coverage with genuine concurrency tests.
+---
+
+## R13 — Concurrency is untested · **HIGH**
+
+PGlite is **single-connection**. It cannot run two transactions at once, so none of these has
+ever been exercised:
+
+- two simultaneous starter grants for one player;
+- two concurrent reward claims with the same idempotency key;
+- a genuine `40001` serialization failure and the retry in `createUnitOfWork`;
+- connection-pool behaviour under load.
+
+**Impact.** The single-request paths are well covered. The _concurrent_ paths — which is where
+double-spend bugs actually live — are not. A bug here would surface as an intermittent
+production failure, the hardest kind to diagnose.
+
+**Mitigation.** The protections are structural (database unique indexes and CHECK constraints
+rather than application checks), so they are the kind most likely to hold under concurrency.
+That is an argument for confidence, **not** a substitute for the test.
+
+**Action.** Run the suite against real PostgreSQL with a concurrency test file. **Required
+before the economy or marketplace phase.**
 
 ---
 

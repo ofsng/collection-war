@@ -9,22 +9,28 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./testing": {
+      "types": "./dist/testing.d.ts",
+      "default": "./dist/testing.js"
     }
   },
   "files": [
     "dist",
-    "drizzle"
+    "drizzle",
+    "testing"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
-    "test:integration": "node ./scripts/require-database.mjs && vitest run --config vitest.integration.config.ts",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "node ./scripts/migrate.mjs",
     "db:seed": "node ./scripts/seed.mjs",
     "db:studio": "drizzle-kit studio",
-    "clean": "node ../../scripts/clean.mjs"
+    "clean": "node ../../scripts/clean.mjs",
+    "test:integration:postgres": "node ./scripts/require-database.mjs && vitest run --config vitest.postgres.config.ts"
   },
   "dependencies": {
     "@collection-war/configuration": "workspace:*",
@@ -35,6 +41,7 @@
     "pg": "8.22.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.4",
     "@types/pg": "8.20.0",
     "drizzle-kit": "0.31.10",
     "typescript": "5.9.3",

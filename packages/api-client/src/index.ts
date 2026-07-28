@@ -21,3 +21,4 @@
 export * from './client';
 export * from './types';
 export * from './system';
+export * from './game';

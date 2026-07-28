@@ -1,0 +1,43 @@
+{
+  "name": "@collection-war/database",
+  "version": "0.0.0",
+  "private": true,
+  "description": "PostgreSQL access: Drizzle schema, migrations, connection pool, transaction helper.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "drizzle"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:integration": "node ./scripts/require-database.mjs && vitest run --config vitest.integration.config.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "node ./scripts/migrate.mjs",
+    "db:seed": "node ./scripts/seed.mjs",
+    "db:studio": "drizzle-kit studio",
+    "clean": "node ../../scripts/clean.mjs"
+  },
+  "dependencies": {
+    "@collection-war/configuration": "workspace:*",
+    "@collection-war/domain": "workspace:*",
+    "@collection-war/observability": "workspace:*",
+    "@collection-war/shared-types": "workspace:*",
+    "drizzle-orm": "0.45.2",
+    "pg": "8.22.0"
+  },
+  "devDependencies": {
+    "@types/pg": "8.20.0",
+    "drizzle-kit": "0.31.10",
+    "typescript": "5.9.3",
+    "vitest": "4.1.10"
+  }
+}

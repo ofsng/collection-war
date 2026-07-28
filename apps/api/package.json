@@ -1,0 +1,45 @@
+{
+  "name": "@collection-war/api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Collection War authoritative backend. NestJS on Fastify.",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "nest build",
+    "dev": "nest start --watch",
+    "start": "node dist/main.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "clean": "node ../../scripts/clean.mjs"
+  },
+  "dependencies": {
+    "@collection-war/configuration": "workspace:*",
+    "@collection-war/database": "workspace:*",
+    "@collection-war/domain": "workspace:*",
+    "@collection-war/localization": "workspace:*",
+    "@collection-war/observability": "workspace:*",
+    "@collection-war/shared-types": "workspace:*",
+    "@collection-war/validation": "workspace:*",
+    "@fastify/helmet": "13.1.0",
+    "@fastify/static": "8.3.0",
+    "@nestjs/common": "11.1.28",
+    "@nestjs/core": "11.1.28",
+    "@nestjs/platform-fastify": "11.1.28",
+    "@nestjs/swagger": "11.4.6",
+    "ioredis": "5.11.1",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "11.0.24",
+    "@nestjs/schematics": "11.1.0",
+    "@nestjs/testing": "11.1.28",
+    "@types/node": "22.15.21",
+    "@types/supertest": "7.2.1",
+    "supertest": "7.2.2",
+    "typescript": "5.9.3",
+    "vitest": "4.1.10"
+  }
+}

@@ -1,0 +1,75 @@
+# ---------------------------------------------------------------- dependencies
+node_modules/
+.pnpm-store/
+
+# --------------------------------------------------------------- build outputs
+dist/
+build/
+out/
+.next/
+.expo/
+.expo-shared/
+*.tsbuildinfo
+
+# ----------------------------------------------------------------------- cache
+.turbo/
+.cache/
+.eslintcache
+.parcel-cache/
+
+# ------------------------------------------------------------------ test output
+coverage/
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
+# ------------------------------------------------------------------ SECRETS
+# Never commit real environment values. Only `.env.example` is tracked, and it must
+# contain placeholders only. See docs/security/SECRET_MANAGEMENT.md.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.p8
+*.keystore
+*.jks
+*.mobileprovision
+credentials.json
+service-account*.json
+google-services.json
+GoogleService-Info.plist
+
+# ---------------------------------------------------------------- local infra
+infrastructure/docker/volumes/
+infrastructure/database/backups/*
+!infrastructure/database/backups/.gitkeep
+
+# ------------------------------------------------------------------- editors
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.recommended.json
+.idea/
+*.swp
+*.swo
+
+# Obsidian is an OPTIONAL viewer for docs/. Its per-machine workspace state must never
+# be committed — see docs/README.md#using-obsidian-optional.
+docs/.obsidian/workspace*
+docs/.obsidian/cache
+docs/.obsidian/plugins/
+docs/.obsidian/graph.json
+.obsidian/
+
+# ------------------------------------------------------------------ OS noise
+.DS_Store
+Thumbs.db
+*~
+
+# ----------------------------------------------------------------------- logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+logs/

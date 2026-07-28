@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+
+    /* NestJS resolves dependencies from decorator metadata emitted by the compiler.
+       Both flags are required; without them every injected provider arrives undefined. */
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
+    /* Decorator metadata needs the compiler to preserve type-only imports that appear in
+       constructor signatures, which `isolatedModules` would otherwise allow it to elide. */
+    "isolatedModules": false,
+
+    "types": ["node"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

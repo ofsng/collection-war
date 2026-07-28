@@ -1,0 +1,83 @@
+/*
+ * Collection War — global base styles.
+ *
+ * Imported once per application, at the root layout. Contains ONLY document-level
+ * concerns: reset, colour scheme, focus visibility. Component styling lives with the
+ * components so that a component is complete on its own.
+ */
+
+:root {
+  --cw-background: #0f1216;
+  --cw-surface: #171b21;
+  --cw-border: #2b323c;
+  --cw-text-primary: #e8ecf1;
+  --cw-text-secondary: #9aa5b1;
+  --cw-accent: #4c8dff;
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: var(--cw-background);
+  color: var(--cw-text-primary);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    'Noto Sans',
+    sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+ * Never remove the focus ring. `outline: none` makes the application unusable for anyone
+ * navigating by keyboard, and it is invisible to whoever removed it because they were
+ * using a mouse. `:focus-visible` shows it only when it is actually needed.
+ */
+:focus-visible {
+  outline: 2px solid var(--cw-accent);
+  outline-offset: 2px;
+}
+
+/* Respect a reader's stated preference. Motion can cause real nausea for some people. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Skip link: the first tab stop on every page, visible only when focused. */
+.cw-skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  padding: 8px 16px;
+  background: var(--cw-surface);
+  border: 1px solid var(--cw-border);
+  border-radius: 4px;
+  z-index: 100;
+}
+
+.cw-skip-link:focus {
+  left: 8px;
+  top: 8px;
+}

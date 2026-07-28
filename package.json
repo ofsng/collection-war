@@ -1,0 +1,50 @@
+{
+  "name": "collection-war",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Collection War \u2014 creature collection, battle and marketplace game. Monorepo root.",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@10.11.0",
+  "engines": {
+    "node": ">=20.19.0",
+    "pnpm": ">=10.11.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:integration": "turbo run test:integration",
+    "test:e2e": "turbo run test:e2e",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:generate": "pnpm --filter @collection-war/database run db:generate",
+    "db:migrate": "pnpm --filter @collection-war/database run db:migrate",
+    "db:seed": "pnpm --filter @collection-war/database run db:seed",
+    "infra:up": "node scripts/infra.mjs up",
+    "infra:down": "node scripts/infra.mjs down",
+    "infra:logs": "node scripts/infra.mjs logs",
+    "infra:reset": "node scripts/infra.mjs reset",
+    "infra:status": "node scripts/infra.mjs status",
+    "verify": "node scripts/verify.mjs",
+    "check:env": "node scripts/check-env.mjs",
+    "check:docs": "node scripts/check-docs.mjs",
+    "clean": "turbo run clean"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@types/node": "22.15.21",
+    "eslint": "9.39.5",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-jsx-a11y": "6.10.2",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.8.0",
+    "prettier": "3.9.6",
+    "turbo": "2.10.7",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.65.0",
+    "vitest": "4.1.10"
+  }
+}

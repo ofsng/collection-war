@@ -1,0 +1,6 @@
+// Generated as part of the platform bootstrap (CW-0001). Safe to edit by hand.
+// Shared compiler settings live in tsconfig.base.json and must not be weakened here.
+{
+  "extends": "./tsconfig.json",
+  "exclude": ["node_modules", "dist", "src/**/*.test.ts", "src/**/*.test.tsx"]
+}

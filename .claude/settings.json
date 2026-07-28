@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(pnpm install)",
+      "Bash(pnpm verify)",
+      "Bash(pnpm test)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm typecheck)",
+      "Bash(pnpm lint)",
+      "Bash(pnpm format)",
+      "Bash(pnpm format:check)",
+      "Bash(pnpm build)",
+      "Bash(pnpm check:env)",
+      "Bash(pnpm clean)",
+      "Bash(pnpm --filter *)",
+      "Bash(pnpm exec vitest *)",
+      "Bash(pnpm turbo run *)",
+      "Bash(pnpm why *)",
+      "Bash(pnpm outdated*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git branch*)",
+      "Bash(git show*)",
+      "Bash(node --version)",
+      "Bash(pnpm --version)",
+      "Bash(docker compose version)"
+    ],
+    "ask": [
+      "Bash(git commit*)",
+      "Bash(git checkout*)",
+      "Bash(git switch*)",
+      "Bash(pnpm add *)",
+      "Bash(pnpm remove *)",
+      "Bash(pnpm infra:up)",
+      "Bash(pnpm infra:down)",
+      "Bash(pnpm db:migrate)",
+      "Bash(pnpm db:generate)"
+    ],
+    "deny": [
+      "Bash(git push*)",
+      "Bash(git reset --hard*)",
+      "Bash(git rebase*)",
+      "Bash(git filter-branch*)",
+      "Bash(gh pr create*)",
+      "Bash(gh repo create*)",
+      "Bash(pnpm publish*)",
+      "Bash(npm publish*)",
+      "Bash(pnpm infra:reset*)",
+      "Bash(rm -rf *)",
+      "Bash(sudo *)",
+      "Bash(curl * | sh)",
+      "Bash(curl * | bash)",
+      "Bash(wget * | sh)",
+      "Bash(aws *)",
+      "Bash(gcloud *)",
+      "Bash(az *)",
+      "Bash(terraform *)",
+      "Bash(kubectl *)",
+      "Bash(eas *)",
+      "Read(./.env)",
+      "Read(./**/*.pem)",
+      "Read(./**/*.key)",
+      "Read(./**/*.p12)",
+      "Read(./**/*.keystore)"
+    ]
+  },
+  "env": {
+    "COLLECTION_WAR_ENV": "local"
+  }
+}

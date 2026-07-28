@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "Collection War",
+    "slug": "collection-war",
+    "version": "0.0.0",
+    "orientation": "portrait",
+    "scheme": "collectionwar",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "platforms": ["ios", "android"],
+    "ios": {
+      "bundleIdentifier": "com.collectionwar.app",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.collectionwar.app",
+      "edgeToEdgeEnabled": true,
+      "permissions": []
+    },
+    "plugins": ["expo-router", "expo-localization", "expo-secure-store"],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "//": "No EAS project is configured. Creating one is an account-level action with cost implications and is deliberately out of scope for the platform bootstrap — see docs/status/DEFERRED_WORK.md."
+    }
+  }
+}

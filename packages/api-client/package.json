@@ -1,0 +1,32 @@
+{
+  "name": "@collection-war/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The only sanctioned way for a client application to talk to the Collection War API.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "clean": "node ../../scripts/clean.mjs"
+  },
+  "dependencies": {
+    "@collection-war/shared-types": "workspace:*",
+    "@collection-war/validation": "workspace:*",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "4.1.10"
+  }
+}

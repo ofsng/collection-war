@@ -1,0 +1,130 @@
+name: Pull Request
+
+on:
+  pull_request:
+    branches: [main]
+
+# A superseded run is wasted compute. Cancel the previous run for the same ref.
+concurrency:
+  group: pr-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Turborepo caches by content hash; telemetry adds nothing here.
+  TURBO_TELEMETRY_DISABLED: 1
+  DO_NOT_TRACK: 1
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Turborepo compares against the base commit to decide what changed.
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.11.0
+
+      - uses: actions/setup-node@v4
+        with:
+          # Reads .nvmrc, so CI and local development cannot drift apart.
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+
+      # --frozen-lockfile: a build that can silently resolve a different version is not
+      # reproducible. If the lockfile is out of date, this fails — which is the point.
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache Turborepo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ github.sha }}
+          restore-keys: turbo-${{ runner.os }}-
+
+      # Stages run individually rather than through `pnpm verify` so the GitHub UI shows
+      # which one failed without opening the log.
+      - name: Format
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+  # Integration tests need real services. They are a separate job so a failure here is
+  # distinguishable from a code failure in `verify`.
+  integration:
+    name: Integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: collection_war
+          POSTGRES_PASSWORD: collection_war_ci
+          POSTGRES_DB: collection_war
+        options: >-
+          --health-cmd "pg_isready -U collection_war"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+        ports:
+          - 6379:6379
+
+    env:
+      DATABASE_URL: postgresql://collection_war:collection_war_ci@localhost:5432/collection_war
+      REDIS_URL: redis://localhost:6379
+      COLLECTION_WAR_ENV: local
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.11.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm turbo run build --filter='./packages/*'
+
+      - name: Migrate
+        run: pnpm db:migrate
+
+      - name: Integration tests
+        run: pnpm test:integration

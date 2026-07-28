@@ -1,0 +1,132 @@
+# =============================================================================
+# Collection War — local development infrastructure
+# =============================================================================
+# LOCAL ONLY. Every credential in this file is a well-known development value and
+# every port binds to 127.0.0.1 so nothing is reachable from the network.
+#
+# This file must never be used to deploy anything. It has no resource limits, no
+# TLS, no backups and no secret management. See
+# docs/architecture/DEPLOYMENT_ARCHITECTURE.md for what a real environment requires.
+#
+# Usage:  pnpm infra:up | pnpm infra:down | pnpm infra:logs | pnpm infra:reset
+# Runbook: docs/runbooks/LOCAL_DEVELOPMENT.md
+# =============================================================================
+
+name: collection-war
+
+services:
+  # ---------------------------------------------------------------- PostgreSQL
+  # The single source of truth for all durable player state.
+  postgres:
+    image: postgres:17-alpine
+    container_name: collection_war_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: collection_war
+      POSTGRES_PASSWORD: collection_war_local_dev
+      POSTGRES_DB: collection_war
+      # Deterministic collation: ordering must not depend on the host locale.
+      # The host running this bootstrap uses tr_TR, whose casing rules differ from C.
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/database/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U collection_war -d collection_war"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  # --------------------------------------------------------------------- Redis
+  # Cache, rate limiting, and the BullMQ job queue. NOT a source of truth.
+  redis:
+    image: redis:7-alpine
+    container_name: collection_war_redis
+    restart: unless-stopped
+    # appendonly keeps queued jobs across a restart; losing them silently would make
+    # local queue behaviour differ from production in a way that hides bugs.
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+
+  # --------------------------------------------------------------------- MinIO
+  # S3-compatible object storage. Keeps the application cloud-neutral: the same
+  # S3 API calls work here, on AWS S3, on Cloudflare R2 and on Backblaze B2.
+  minio:
+    image: minio/minio:latest
+    container_name: collection_war_minio
+    restart: unless-stopped
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: collection_war_local
+      MINIO_ROOT_PASSWORD: collection_war_local_dev
+    ports:
+      - "127.0.0.1:9000:9000" # S3 API
+      - "127.0.0.1:9001:9001" # Web console
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  # Creates the development bucket, then exits. `pnpm infra:up` treats a completed
+  # exit(0) here as success, not as a crashed service.
+  minio-init:
+    image: minio/mc:latest
+    container_name: collection_war_minio_init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 collection_war_local collection_war_local_dev &&
+      mc mb --ignore-existing local/collection-war-local &&
+      mc anonymous set download local/collection-war-local &&
+      echo 'Collection War: local bucket ready'
+      "
+    restart: "no"
+
+  # ------------------------------------------------------------------- Mailpit
+  # Captures every outbound email locally. Nothing leaves the machine, so a bug in
+  # notification code cannot mail real users during development.
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: collection_war_mailpit
+    restart: unless-stopped
+    environment:
+      MP_MAX_MESSAGES: 500
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    ports:
+      - "127.0.0.1:1025:1025" # SMTP
+      - "127.0.0.1:8025:8025" # Web UI
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+
+# Named volumes, not bind mounts: `pnpm infra:reset` can drop them cleanly and they
+# do not inherit host file ownership problems.
+volumes:
+  postgres_data:
+    name: collection_war_postgres_data
+  redis_data:
+    name: collection_war_redis_data
+  minio_data:
+    name: collection_war_minio_data

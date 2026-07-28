@@ -1,0 +1,12 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# pnpm 10 blocks lifecycle scripts by default. Only the packages listed here are
+# allowed to run install scripts. Adding an entry is a supply-chain decision —
+# see docs/security/SUPPLY_CHAIN_SECURITY.md before extending this list.
+onlyBuiltDependencies:
+  - "@tailwindcss/oxide"
+  - esbuild
+  - sharp
+  - unrs-resolver

@@ -1,0 +1,67 @@
+name: Main
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: main
+  cancel-in-progress: false # never cancel a main-branch verification
+
+permissions:
+  contents: read
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+  DO_NOT_TRACK: 1
+
+# ─────────────────────────────────────────────────────────────────────────────
+# THIS WORKFLOW DOES NOT DEPLOY ANYTHING.
+#
+# There is no deployment target, no tested rollback, no secret management and no
+# monitoring that would notice a bad deploy. A deploy workflow written before those exist
+# would be untested automation pointed at production — worse than no automation.
+#
+# See docs/architecture/DEPLOYMENT_ARCHITECTURE.md.
+# ─────────────────────────────────────────────────────────────────────────────
+
+jobs:
+  verify:
+    name: Verify main
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.11.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache Turborepo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-main-${{ runner.os }}-${{ github.sha }}
+          restore-keys: turbo-main-${{ runner.os }}-
+
+      - name: Verify
+        run: pnpm verify
+
+      # `main` being red is a stop-everything condition: it means the branch everyone
+      # branches from is broken.
+      - name: Report failure
+        if: failure()
+        run: |
+          echo "::error::main is RED. Fixing it takes priority over any other work."
+          echo "See docs/runbooks/RELEASES.md — main must always be releasable."
